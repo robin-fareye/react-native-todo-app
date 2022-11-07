@@ -30,36 +30,36 @@ const Login = ({ navigation }) => {
             );
     }
 
-    const login = async() => {
+    // const login = async() => {
 
-        console.log("i am here");
-        //const cred={username:email,password:password}
-        const cred=`username=${email}&password=${password}`
-        try{
-            let res=await fetch("http://10.0.2.2:8080/login",{
-             method: 'POST',
-            headers: {
-                "content-type": "application/x-www-form-urlencoded"
-              },
-            body:cred 
-        })
-        const json = await res.json()
-        console.log(json?.id);
-        if(json?.id!==null){
-            console.log("logged in");
-            navigation.navigate("Todos")
-        }
-        else{
-            ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
-        }
-        }
-        catch{
-            console.log("something went wrong");
-            ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
-        }
+    //     console.log("i am here");
+    //     //const cred={username:email,password:password}
+    //     const cred=`username=${email}&password=${password}`
+    //     try{
+    //         let res=await fetch("http://10.0.2.2:8080/login",{
+    //          method: 'POST',
+    //         headers: {
+    //             "content-type": "application/x-www-form-urlencoded"
+    //           },
+    //         body:cred 
+    //     })
+    //     const json = await res.json()
+    //     console.log(json?.id);
+    //     if(json?.id!==null){
+    //         console.log("logged in");
+    //         navigation.navigate("Todos")
+    //     }
+    //     else{
+    //         ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
+    //     }
+    //     }
+    //     catch{
+    //         console.log("something went wrong");
+    //         ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
+    //     }
 
         
-    }
+    // }
 
     const validatePassword = () => {
         var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
@@ -78,8 +78,8 @@ const Login = ({ navigation }) => {
         return true
     }
     const handleSignIn = () => {
-        login()
-        //navigation.navigate('Todos')
+        //login()
+        navigation.navigate('Todos')
         // if (validate()) {
             
         //     if (email === cred.email && password === cred.password) {

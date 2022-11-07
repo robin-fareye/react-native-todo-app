@@ -2,23 +2,24 @@ import React, { useEffect, useState } from 'react'
 import { Text, View, StyleSheet, TouchableOpacity, Button, Pressable, FlatList, Image, } from 'react-native'
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAllTodo } from '../database/Realm';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const Todos = ({ navigation, route }) => {
 
-  const [render, setRender] = useState(false)
-  const isFocused = useIsFocused()
 
-  // useEffect(() => {
-  //   let todoList=getData();
-  //   console.log(todoList)
-  // }, [])
+  const [pendingTodos, setPendingTodos] = useState([])
+
+  useEffect(() => {
+    let res=getAllTodo()
+    setPendingTodos(res)
+  }, [])
 
   useEffect(() => {
     if (route.params?.title && route.params?.title !== "") {
       setPendingTodos((prevState) => {
         return ([...prevState, { title: route.params?.title }])
       })
-    }
+    } 
   }, [route.params?.title])
 
   const storeData = async (value) => {
@@ -42,12 +43,7 @@ const getData = async () => {
 }
   const [isTodoList, setIsTodoList] = useState(true)
 
-  const [pendingTodos, setPendingTodos] = useState([
-    { title: "play football" },
-    { title: "play cricket" },
-    { title: "play football" },
-    { title: "play football" },
-  ])
+ 
   const [completedTodos, setCompletedTodos] = useState([
     { title: "play soccer" },
     { title: "play tennis" }])

@@ -1,7 +1,7 @@
 import { React, useState } from 'react'
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker';
-import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace'
+import {postTodo}from "../database/Realm"
 const AddTodo = ({navigation}) => {
 
     const [date, setDate] = useState(new Date())
@@ -24,9 +24,10 @@ const AddTodo = ({navigation}) => {
     }
     const onCancel=()=>{
         navigation.navigate("Todos")
-    
     }
+    
     const onSave=()=>{
+        postTodo(title,description,dateString)
         navigation.navigate({
             name: 'Todos',
             params: { title: title },
@@ -77,13 +78,6 @@ const AddTodo = ({navigation}) => {
         </View>
     )
 }
-{/* <Image source={require("../assets/date.png")}  */ }
-{/* <DateTimePicker
-            mode='date'
-            value={d}
-           >
-
-           </DateTimePicker> */}
 const styles = StyleSheet.create({
     mainContainer: {
         height: "100%",
