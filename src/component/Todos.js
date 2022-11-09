@@ -1,79 +1,83 @@
 import React, { useEffect, useState } from 'react'
-import { Text, View, StyleSheet, TouchableOpacity, Button, Pressable, FlatList, Image, } from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity, Button, Pressable, Alert,FlatList, Image,ToastAndroid } from 'react-native'
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAllTodo } from '../database/Realm';
+import { getAllTodo,updateTask } from '../database/Realm';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { BackHandler } from 'react-native';
 const Todos = ({ navigation, route }) => {
 
-
+  //const nav=useNavigation()
   const [pendingTodos, setPendingTodos] = useState([])
 
   useEffect(() => {
-    let res=getAllTodo()
-    setPendingTodos(res)
+    
+    allTodos()
+    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
   }, [])
 
   useEffect(() => {
+
     if (route.params?.title && route.params?.title !== "") {
       setPendingTodos((prevState) => {
-        return ([...prevState, { title: route.params?.title }])
+        return ([...prevState, { title: route.params?.title ,description:route.params?.description,dueDate:route?.params?.dueDate}])
       })
     } 
   }, [route.params?.title])
 
-  const storeData = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem('prendingTodos', jsonValue)
-      console.log("saved!");
-    } catch (e) {
-      console.log("data can't be stored")
-    }
+  const handleBackButtonClick=()=>{
+    //navigation.dispatch(StackActions.pop(1))
+    BackHandler.exitApp()
   }
-
-
-const getData = async () => {
-  try {
-    const jsonValue = await AsyncStorage.getItem('pendingTodos')
-    return jsonValue != null ? JSON.parse(jsonValue) : null;
-  } catch(e) {
-    // error reading value
+  const allTodos=()=>{
+    let res=getAllTodo()
+    let pendingList=res.filter((item)=>{
+      return item.description==="pending"
+    })
+    let doneList=res.filter((item)=>{
+      return item.description==="done"
+    })
+    setPendingTodos(pendingList)
+    setCompletedTodos(doneList)
   }
-}
+ 
+
+  
   const [isTodoList, setIsTodoList] = useState(true)
 
  
-  const [completedTodos, setCompletedTodos] = useState([
-    { title: "play soccer" },
-    { title: "play tennis" }])
+  const [completedTodos, setCompletedTodos] = useState([])
 
   const onPressTodo = () => {
     setIsTodoList(true)
   }
   const onPressDone = () => {
+
+    AsyncStorage.removeItem('loginUser');
     setIsTodoList(false)
   }
   const handleAddTodo = () => {
-    navigation.navigate("AddTodo", { navigation: navigation })
+    navigation.navigate("AddTodo")
   }
 
-  const handleTodoDone=(title)=>{
-
+  const handleTodoDone=(todo)=>{
+    updateTask(todo)
+    allTodos()
+    ToastAndroid.show("Marked As Done", ToastAndroid.SHORT)
   }
-  const renderListItem = (title) => {
+  const renderListItem = (todo) => {
     return (
-      <TouchableWithoutFeedback onLongPress={()=>handleTodoDone(title)}>
+      <TouchableOpacity onLongPress={()=>handleTodoDone(todo)}>
         <View style={styles.listItemContainer}>
           <View style={[styles.listRibbon, { backgroundColor: isTodoList ? "#4b1ea2" : "#228B22" }]}></View>
           <View style={styles.listIcon}>
             <Image style={styles.icon} source={require("../assets/todo.png")} />
           </View>
           <View style={styles.todoTitle}>
-            <Text style={styles.titleText}>{title}</Text>
+            <Text style={styles.titleText}>{todo?.title}</Text>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
 
     )
   }
@@ -92,9 +96,10 @@ const getData = async () => {
         </View>
 
         <FlatList style={styles.list}
+        ListEmptyComponent={<Text>No Pending Todos</Text>}
           data={isTodoList ? pendingTodos : completedTodos}
           renderItem={(item) => {
-            return (renderListItem(item?.item?.title))
+            return (renderListItem(item?.item))
           }}
         />
 

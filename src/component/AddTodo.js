@@ -2,7 +2,10 @@ import { React, useState } from 'react'
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {postTodo}from "../database/Realm"
-const AddTodo = ({navigation}) => {
+import moment from 'moment';
+import { useNavigation } from '@react-navigation/native';
+const AddTodo = () => {
+    const nav =useNavigation()
 
     const [date, setDate] = useState(new Date())
     const [showDatePicker, setShowDatePicker] = useState(false)
@@ -23,14 +26,15 @@ const AddTodo = ({navigation}) => {
 
     }
     const onCancel=()=>{
-        navigation.navigate("Todos")
+        nav.navigate("Todos")
     }
     
     const onSave=()=>{
         postTodo(title,description,dateString)
-        navigation.navigate({
+      
+        nav.navigate({
             name: 'Todos',
-            params: { title: title },
+            params: { title: title, description:description,dueDate:dateString },
             merge: true,})
     }
     return (
@@ -56,6 +60,7 @@ const AddTodo = ({navigation}) => {
                 </View>
                 {showDatePicker && <DateTimePicker
                     mode='date'
+                    minimumDate={moment().toDate()}
                     onChange={onDateChange}
                     value={date}
                 />}

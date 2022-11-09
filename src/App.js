@@ -6,7 +6,8 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import type { Node } from 'react';
 import {
   StyleSheet,
@@ -17,20 +18,46 @@ import {
   Colors
 } from 'react-native/Libraries/NewAppScreen';
 import Todos from './component/Todos';
+import SplashScreen from './component/SplashScreen';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AddTodo from './component/AddTodo';
+import { useSharedValue } from 'react-native-reanimated';
 /* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
  * LTI update could not be added via codemod */
 
 
 const App=() => {
-  const isDarkMode = useColorScheme() === 'dark';
+
+  const [isLoggedIn,setIsLoggedIn]=useState()
   const Stack = createNativeStackNavigator();
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const getInitialRoute = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('loginUser')
+      if(userId!==null){
+        console.log("is loggedIn): ",isLoggedIn);
+        
+        return("Todos")
+      }
+      else{
+        return("Login")
+      }
+    } catch(e) {
+      // error reading value
+    }
+  }
+
+
+  // useEffect(()=>{
+  //     getData().then(res=>{
+  //     console.log("My user",res);
+  
+  //     console.log("is loggedIn: ",isLoggedIn);
+  //   })
+    
+  // },[])
+  
 
   return (
     
@@ -39,7 +66,8 @@ const App=() => {
           screenOptions={{
           headerShown: false
         }}
-        initialRouteName="Login">
+        initialRouteName={SplashScreen}>
+          <Stack.Screen name="SplashScreen" component={SplashScreen} />
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Todos" component={Todos} />
           <Stack.Screen name="AddTodo" component={AddTodo} />

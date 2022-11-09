@@ -1,15 +1,11 @@
 import React, { useState } from 'react'
 import { Text, View, StyleSheet, Image, TextInput, TouchableOpacity, ToastAndroid } from 'react-native'
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Login = ({ navigation }) => {
 
     const [signInMode, setSignInMode] = useState(true)
     const [showPassword, setShowPassword] = useState(true)
-    const cred = {
-        email: "sample@email.com",
-        password: "Sample@123"
-    }
-
+  
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -29,37 +25,48 @@ const Login = ({ navigation }) => {
                 /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             );
     }
+    const storeData = async (value) => {
+        try {
+          const jsonValue = JSON.stringify(value)
+          await AsyncStorage.setItem('loginUser', jsonValue)
+          console.log("saved!");
+        } catch (e) {
+          console.log("data can't be stored")
+        }
+      }
 
-    // const login = async() => {
+    const login = async() => {
 
-    //     console.log("i am here");
-    //     //const cred={username:email,password:password}
-    //     const cred=`username=${email}&password=${password}`
-    //     try{
-    //         let res=await fetch("http://10.0.2.2:8080/login",{
-    //          method: 'POST',
-    //         headers: {
-    //             "content-type": "application/x-www-form-urlencoded"
-    //           },
-    //         body:cred 
-    //     })
-    //     const json = await res.json()
-    //     console.log(json?.id);
-    //     if(json?.id!==null){
-    //         console.log("logged in");
-    //         navigation.navigate("Todos")
-    //     }
-    //     else{
-    //         ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
-    //     }
-    //     }
-    //     catch{
-    //         console.log("something went wrong");
-    //         ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
-    //     }
+        console.log("i am here");
+        //const cred={username:email,password:password}
+        const cred=`username=${email}&password=${password}`
+        try{
+            let res=await fetch("http://10.0.2.2:8080/login",{
+             method: 'POST',
+            headers: {
+                "content-type": "application/x-www-form-urlencoded"
+              },
+            body:cred 
+        })
+        const json = await res.json()
+        console.log(json?.id);
+        if(json?.id!==null){
+            
+            storeData(json?.id)
+            console.log("logged in: ",json?.id);
+            navigation.navigate("Todos")
+        }
+        else{
+            ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
+        }
+        }
+        catch{
+            console.log("something went wrong");
+            ToastAndroid.show("Login Failed", ToastAndroid.SHORT)
+        }
 
         
-    // }
+    }
 
     const validatePassword = () => {
         var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
@@ -78,8 +85,8 @@ const Login = ({ navigation }) => {
         return true
     }
     const handleSignIn = () => {
-        //login()
-        navigation.navigate('Todos')
+        login()
+       //navigation.navigate('Todos')
         // if (validate()) {
             
         //     if (email === cred.email && password === cred.password) {
